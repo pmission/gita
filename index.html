@@ -62,7 +62,7 @@
             { id: 18, sanskrit: "Moksha Sanyasa Yoga", translation: "The Yoga of Liberation", summary: "The final conclusion: abandoning all varieties of religion to surrender completely to the Divine.", mood: ["Purpose", "Liberation"], moodTarget: 18, verseCount: 78 },
         ];
 
-        // --- SAMPLE VERSES (Chapter 2 for demo) ---
+        // --- SAMPLE VERSES (Only Chapter 2 has content) ---
         const SAMPLE_VERSES = {
             2: [
                 { number: 47, sanskrit: "कर्मण्येवाधिकारस्ते मा फलेषु कदाचन | मा कर्मफलहेतुर्भूर्मा ते सङ्गोऽस्त्वकर्मणि ||", translation: "You have a right to perform your prescribed duty, but you are not entitled to the fruits of action. Never consider yourself to be the cause of the results of your activities, nor be attached to inaction.", meaning: "This is one of the most famous verses, teaching the principle of Nishkama Karma (selfless action)." },
@@ -189,11 +189,11 @@
                         
                         <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
                             <button 
-                                onclick="setView({ type: 'verse' }, 1)"
+                                onclick="setView({ type: 'verse' }, 2)"
                                 class="px-8 py-4 bg-gray-900 text-white rounded-full font-semibold hover:bg-gray-800 transition-all transform hover:-translate-y-1 shadow-lg flex items-center gap-2"
                             >
                                 ${renderIcon('book-open')}
-                                Read Chapter 1
+                                Read Chapter 2
                             </button>
                         </div>
 
@@ -265,18 +265,20 @@
             `;
         }
 
-        function renderVerseView() {
-            if (!selectedChapter) return `<p class="p-10 text-center">Chapter not found.</p>`;
-            
-            // Use sample data if it exists, otherwise use a placeholder verse
-            const verses = SAMPLE_VERSES[selectedChapter.id] || [{
-                number: 1,
-                sanskrit: "॥ Placeholder Sanskrit Text ॥",
-                translation: "This is a placeholder translation. The full text of Chapter ${selectedChapter.id} will appear here soon.",
-                meaning: "The meaning is to strive for knowledge."
-            }];
+        function renderPlaceholderVerse(chapter) {
+            return `
+                <div class="p-8 text-center bg-yellow-50 rounded-xl">
+                    <h3 class="font-serif text-2xl font-bold text-yellow-800 mb-4">Content Placeholder</h3>
+                    <p class="text-gray-700 leading-loose text-lg">
+                        The full text for **Chapter ${chapter.id} (${chapter.translation})** is not yet loaded into this demo.
+                        To view actual verses, please select **Chapter 2 (Sankhya Yoga)** from the list.
+                    </p>
+                </div>
+            `;
+        }
 
-            const verseHtml = verses.map(verse => `
+        function renderVerseContent(verse) {
+            return `
                 <div class="p-6 md:p-10 hover:bg-orange-50/30 transition-colors group">
                     <div class="flex justify-between items-start mb-6">
                         <span class="inline-block bg-orange-100 text-orange-800 text-xs font-bold px-3 py-1 rounded-full">
@@ -301,8 +303,22 @@
                         </p>
                     </div>
                 </div>
-            `).join('');
+            `;
+        }
 
+        function renderVerseView() {
+            if (!selectedChapter) return `<p class="p-10 text-center">Chapter not found.</p>`;
+            
+            const verses = SAMPLE_VERSES[selectedChapter.id];
+            
+            let verseHtml = '';
+
+            if (verses && verses.length > 0) {
+                verseHtml = verses.map(renderVerseContent).join('');
+            } else {
+                verseHtml = renderPlaceholderVerse(selectedChapter);
+            }
+            
             return `
                 <div class="min-h-screen bg-gray-50 pb-20">
                     <!-- Chapter Header -->
@@ -322,20 +338,22 @@
 
                     <div class="container mx-auto px-4 -mt-8">
                         <div class="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-                            <!-- Tabs Placeholder -->
-                            <div class="p-8">
+                            <!-- Chapter Summary -->
+                            <div class="p-8 border-b border-gray-100">
                                 <h3 class="font-serif text-2xl font-bold text-gray-800 mb-4">Chapter Summary</h3>
                                 <p class="text-gray-700 leading-loose text-lg font-serif">
                                     ${selectedChapter.summary}
                                 </p>
                             </div>
 
-                            <div class="divide-y divide-gray-100 border-t">
+                            <div class="divide-y divide-gray-100">
                                 ${verseHtml}
                                 
-                                <div class="p-8 text-center">
-                                    <p class="text-gray-500">End of demonstrated verses. Total verses in this chapter: ${selectedChapter.verseCount}.</p>
-                                </div>
+                                ${verses ? `
+                                    <div class="p-8 text-center">
+                                        <p class="text-gray-500">End of sample verses for this chapter.</p>
+                                    </div>
+                                ` : ''}
                             </div>
                         </div>
                     </div>
